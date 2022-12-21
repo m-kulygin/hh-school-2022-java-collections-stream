@@ -5,6 +5,7 @@ import common.Person;
 import common.PersonConverter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /*
 Задача 4
@@ -21,7 +22,8 @@ public class Task4 {
     this.personConverter = personConverter;
   }
 
-  public List<ApiPersonDto> convert(List<Person> persons) {
-    return new ArrayList<>();
+  public List<ApiPersonDto> convert(List<Person> persons)
+  {
+    return persons.stream().map(personConverter::convert).collect(Collectors.toList());
   }
 }
