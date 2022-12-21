@@ -25,6 +25,6 @@ public class Task1 {
 
   public List<Person> findOrderedPersons(List<Integer> personIds) {
     Set<Person> persons = personService.findPersons(personIds);
-    return persons.stream().sorted(Comparator.comparingInt(p -> personIds.indexOf(p.getId()))).collect(Collectors.toList());
+    return persons.stream().sorted(Comparator.comparingInt(p -> personIds.indexOf(p.getId()))).collect(Collectors.toList()); // O(n^2)
   }
 }
