@@ -26,6 +26,8 @@ public class Task1 {
     Map<Integer, Person> persons = personService.findPersons(personIds)
             .stream()
             .collect(Collectors.toMap(Person::getId, Function.identity())); // O(n)
-    return personIds.stream().map(persons::get).collect(Collectors.toList()); // O(n)
+    return personIds.stream()
+            .map(persons::get)
+            .collect(Collectors.toList()); // O(n)
   }
 }
