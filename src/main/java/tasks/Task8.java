@@ -1,12 +1,8 @@
 package tasks;
 
 import common.Person;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -21,67 +17,63 @@ P.P.S Здесь ваши правки желательно прокоммент
  */
 public class Task8 {
 
-  private long count;
+  // ИЗМЕНЕНО: убрано поле класса count, которое использовалось лишь локально в методе countEven(...).
 
   //Не хотим выдывать апи нашу фальшивую персону, поэтому конвертим начиная со второй
+  // ИЗМЕНЕНО: метод переписан на стримах с добавлением null-case проверок.
   public List<String> getNames(List<Person> persons) {
-    if (persons.size() == 0) {
-      return Collections.emptyList();
-    }
-    persons.remove(0);
-    return persons.stream().map(Person::getFirstName).collect(Collectors.toList());
+    return Optional.ofNullable(persons)
+            .orElseGet(Collections::emptyList)
+            .stream()
+            .filter(Objects::nonNull)
+            .map(Person::getFirstName)
+            .collect(Collectors.toList());
   }
 
   //ну и различные имена тоже хочется
+  // ИЗМЕНЕНО: убрано излишнее использование стримов на более простой и читаемый вариант.
+  // Null-case проверки делать не нужно, т.к. они и так проводятся при вызове getNames(persons)
   public Set<String> getDifferentNames(List<Person> persons) {
-    return getNames(persons).stream().distinct().collect(Collectors.toSet());
+    return new HashSet<>(getNames(persons));
   }
 
   //Для фронтов выдадим полное имя, а то сами не могут
+  // ИЗМЕНЕНО: метод переписан под единый вызов функции format.
+  // Добавлены null-case проверки.
   public String convertPersonToString(Person person) {
-    String result = "";
-    if (person.getSecondName() != null) {
-      result += person.getSecondName();
-    }
-
-    if (person.getFirstName() != null) {
-      result += " " + person.getFirstName();
-    }
-
-    if (person.getSecondName() != null) {
-      result += " " + person.getSecondName();
-    }
-    return result;
+    return person == null ? "" :
+            String.format("%s %s %s",
+                    Optional.ofNullable(person.getSecondName()).orElse(""),
+                    Optional.ofNullable(person.getFirstName()).orElse(""),
+                    Optional.ofNullable(person.getMiddleName()).orElse(""));
   }
 
   // словарь id персоны -> ее имя
+  // ИЗМЕНЕНО: метод переписан на стримах с добавлением null-case проверок.
   public Map<Integer, String> getPersonNames(Collection<Person> persons) {
-    Map<Integer, String> map = new HashMap<>(1);
-    for (Person person : persons) {
-      if (!map.containsKey(person.getId())) {
-        map.put(person.getId(), convertPersonToString(person));
-      }
-    }
-    return map;
+    return Optional.ofNullable(persons)
+            .stream()
+            .flatMap(Collection::stream)
+            .filter(Objects::nonNull)
+            .collect(Collectors.toMap(Person::getId, this::convertPersonToString));
   }
 
   // есть ли совпадающие в двух коллекциях персоны?
+  // ИЗМЕНЕНО: двойной цикл с проверкой всех элементов попарно заменён на более читаемый метод disjoint.
+  // Добавлены null-case проверки.
   public boolean hasSamePersons(Collection<Person> persons1, Collection<Person> persons2) {
-    boolean has = false;
-    for (Person person1 : persons1) {
-      for (Person person2 : persons2) {
-        if (person1.equals(person2)) {
-          has = true;
-        }
-      }
-    }
-    return has;
+    boolean result = false;
+    try {
+      result = !Collections.disjoint(persons1, persons2);
+    } catch (Exception e) { System.err.println("EXCEPTION: " + e.getMessage()); }
+    return result;
   }
 
   //...
-  public long countEven(Stream<Integer> numbers) {
-    count = 0;
-    numbers.filter(num -> num % 2 == 0).forEach(num -> count++);
-    return count;
+  // ИЗМЕНЕНО: метод, подсчитывающий количество чётных значений в целочисленном стриме.
+  // Использование локальной переменной count с forEach-проходом по стриму заменено на более читаемый встроенный метод count().
+  public long countEven(Stream<Integer> numbers) // убрано ненужное внутреннее поле count; избыточная манипуляция с этим полем заменена на встроенный метод count
+  {
+    return numbers.filter(num -> num % 2 == 0).count();
   }
 }
