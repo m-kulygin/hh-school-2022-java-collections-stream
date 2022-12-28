@@ -25,6 +25,7 @@ public class Task8 {
     return Optional.ofNullable(persons)
             .orElseGet(Collections::emptyList)
             .stream()
+            .skip(1)
             .filter(Objects::nonNull)
             .map(Person::getFirstName)
             .collect(Collectors.toList());
@@ -42,10 +43,9 @@ public class Task8 {
   // Добавлены null-case проверки.
   public String convertPersonToString(Person person) {
     return person == null ? "" :
-            String.format("%s %s %s",
-                    Optional.ofNullable(person.getSecondName()).orElse(""),
-                    Optional.ofNullable(person.getFirstName()).orElse(""),
-                    Optional.ofNullable(person.getMiddleName()).orElse(""));
+            Stream.of(person.getSecondName(), person.getFirstName(), person.getMiddleName())
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.joining(" "));
   }
 
   // словарь id персоны -> ее имя
@@ -55,18 +55,15 @@ public class Task8 {
             .stream()
             .flatMap(Collection::stream)
             .filter(Objects::nonNull)
-            .collect(Collectors.toMap(Person::getId, this::convertPersonToString));
+            .filter(person -> person.getId() != null)
+            .collect(Collectors.toMap(Person::getId, this::convertPersonToString, (oldName, newName) -> oldName));
   }
 
   // есть ли совпадающие в двух коллекциях персоны?
   // ИЗМЕНЕНО: двойной цикл с проверкой всех элементов попарно заменён на более читаемый метод disjoint.
   // Добавлены null-case проверки.
   public boolean hasSamePersons(Collection<Person> persons1, Collection<Person> persons2) {
-    boolean result = false;
-    try {
-      result = !Collections.disjoint(persons1, persons2);
-    } catch (Exception e) { System.err.println("EXCEPTION: " + e.getMessage()); }
-    return result;
+      return (persons1 != null) && (persons2 != null) && !Collections.disjoint(new HashSet<>(persons1), persons2);
   }
 
   //...

@@ -22,8 +22,7 @@ public class Task4 {
     this.personConverter = personConverter;
   }
 
-  public List<ApiPersonDto> convert(List<Person> persons)
-  {
+  public List<ApiPersonDto> convert(List<Person> persons) {
     return persons.stream()
             .map(personConverter::convert)
             .collect(Collectors.toList());
