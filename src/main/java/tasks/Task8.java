@@ -55,7 +55,6 @@ public class Task8 {
             .stream()
             .flatMap(Collection::stream)
             .filter(Objects::nonNull)
-            .filter(person -> person.getId() != null)
             .collect(Collectors.toMap(Person::getId, this::convertPersonToString, (oldName, newName) -> oldName));
   }
 
